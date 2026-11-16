@@ -1,0 +1,2178 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Windows 11 - TikTok Canlı Yayın Kaos Oyunu</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter & Segoe UI fallback -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --win-glass: rgba(243, 246, 252, 0.78);
+      --win-glass-dark: rgba(24, 28, 38, 0.82);
+      --win-border: rgba(255, 255, 255, 0.45);
+      --win-shadow: 0 18px 45px rgba(0, 0, 0, 0.35), 0 0 1px rgba(255, 255, 255, 0.5);
+    }
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: #06142e;
+    }
+
+    /* Windows 11 Bloom Inspired Wallpaper */
+    #desktop-wallpaper {
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(circle at 52% 48%, #2874f0 0%, #103b8c 38%, #07193d 75%, #030b1c 100%);
+      z-index: 0;
+      overflow: hidden;
+      transition: filter 0.5s ease;
+    }
+
+    .bloom-petal {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(28px);
+      opacity: 0.85;
+      pointer-events: none;
+      animation: bloomFloat 14s ease-in-out infinite alternate;
+    }
+
+    .bloom-1 {
+      width: 65vmax;
+      height: 65vmax;
+      top: 12%;
+      left: 18%;
+      background: radial-gradient(circle at 30% 30%, #60d5ff, #1d63dc 60%, transparent 75%);
+    }
+
+    .bloom-2 {
+      width: 55vmax;
+      height: 55vmax;
+      bottom: 8%;
+      right: 12%;
+      background: radial-gradient(circle at 60% 40%, #3b9eff, #0f3a9c 65%, transparent 78%);
+      animation-delay: -4s;
+    }
+
+    .bloom-3 {
+      width: 45vmax;
+      height: 45vmax;
+      top: 25%;
+      right: 22%;
+      background: radial-gradient(circle at 40% 50%, #7ce7ff, #2563eb 55%, transparent 72%);
+      animation-delay: -8s;
+    }
+
+    @keyframes bloomFloat {
+      0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+      100% { transform: translate(-2%, 2%) scale(1.06) rotate(8deg); }
+    }
+
+    /* Window Animations */
+    @keyframes winPopIn {
+      0% {
+        opacity: 0;
+        transform: scale(0.84) translateY(14px);
+      }
+      70% {
+        opacity: 1;
+        transform: scale(1.02) translateY(-2px);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    @keyframes winCloseOut {
+      0% {
+        opacity: 1;
+        transform: scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: scale(0.75);
+      }
+    }
+
+    @keyframes screenShake {
+      0%, 100% { transform: translate(0, 0); }
+      15% { transform: translate(-8px, 6px); }
+      30% { transform: translate(8px, -6px); }
+      45% { transform: translate(-6px, -4px); }
+      60% { transform: translate(6px, 5px); }
+      75% { transform: translate(-4px, 2px); }
+    }
+
+    @keyframes cleanerSweep {
+      0% { top: -15%; opacity: 0.95; }
+      100% { top: 110%; opacity: 0.2; }
+    }
+
+    @keyframes floatUpParticle {
+      0% {
+        opacity: 0;
+        transform: translateY(20px) scale(0.7) rotate(-8deg);
+      }
+      20% {
+        opacity: 1;
+      }
+      85% {
+        opacity: 0.9;
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(-240px) scale(1.15) rotate(12deg);
+      }
+    }
+
+    .shake-desktop {
+      animation: screenShake 0.45s cubic-bezier(.36,.07,.19,.97) both;
+    }
+
+    .win-window {
+      position: absolute;
+      border-radius: 12px;
+      box-shadow: var(--win-shadow);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      animation: winPopIn 0.24s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      overflow: hidden;
+      touch-action: none;
+    }
+
+    .win-window.closing {
+      animation: winCloseOut 0.16s ease-in forwards;
+      pointer-events: none;
+    }
+
+    .win-titlebar {
+      cursor: grab;
+      touch-action: none;
+    }
+
+    .win-titlebar:active {
+      cursor: grabbing;
+    }
+
+    /* Cleaner Scan Line */
+    #cleaner-beam {
+      position: fixed;
+      left: 0;
+      right: 0;
+      height: 110px;
+      background: linear-gradient(180deg, rgba(16, 185, 129, 0) 0%, rgba(16, 185, 129, 0.35) 75%, rgba(52, 211, 153, 0.95) 100%);
+      border-bottom: 3px solid #6ee7b7;
+      box-shadow: 0 12px 40px rgba(16, 185, 129, 0.7);
+      z-index: 9500;
+      pointer-events: none;
+      display: none;
+    }
+
+    #cleaner-beam.active {
+      display: block;
+      animation: cleanerSweep 0.85s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    .floating-particle {
+      position: fixed;
+      pointer-events: none;
+      z-index: 40;
+      animation: floatUpParticle 3.2s ease-out forwards;
+    }
+
+    /* 180-Degree Flipped Desktop Troll Mode */
+    #desktop-shell {
+      transition: transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+      transform-origin: center center;
+    }
+
+    #desktop-shell.flipped-screen {
+      transform: rotate(180deg);
+    }
+
+    /* Confetti Falling Animation */
+    @keyframes confettiDrop {
+      0% {
+        transform: translateY(-20px) rotate(0deg) scale(1);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(105vh) rotate(720deg) scale(0.8);
+        opacity: 0;
+      }
+    }
+
+    .confetti-piece {
+      position: fixed;
+      top: -16px;
+      width: 10px;
+      height: 16px;
+      border-radius: 3px;
+      pointer-events: none;
+      z-index: 9600;
+      animation: confettiDrop linear forwards;
+    }
+
+    /* Fake Autonomous Virus Cursors */
+    .fake-cursor {
+      position: fixed;
+      pointer-events: none;
+      z-index: 8500;
+      transition: left 0.45s ease-in-out, top 0.45s ease-in-out;
+      filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.5));
+    }
+
+    /* Evasive Close Button Transition */
+    .evasive-close-btn {
+      transition: transform 0.14s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.15s ease;
+    }
+
+    /* Custom Scrollbar for Control Panel */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.3);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.4);
+      border-radius: 9999px;
+    }
+  </style>
+</head>
+<body class="text-slate-900">
+
+  <!-- Wrapper Shell for Desktop Flipping -->
+  <div id="desktop-shell" class="relative w-full h-full">
+
+  <!-- ==================== 1. WINDOWS 11 WALLPAPER & TEA SPONSOR SHOWCASE ==================== -->
+  <div id="desktop-wallpaper">
+    <!-- Windows 11 Bloom SVG Curves -->
+    <svg class="absolute inset-0 w-full h-full opacity-65 pointer-events-none" viewBox="0 0 1200 1200" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <linearGradient id="winPetal1" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#67e8f9" stop-opacity="0.85"/>
+          <stop offset="50%" stop-color="#2563eb" stop-opacity="0.65"/>
+          <stop offset="100%" stop-color="#1e1b4b" stop-opacity="0.1"/>
+        </linearGradient>
+        <linearGradient id="winPetal2" x1="100%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.8"/>
+          <stop offset="60%" stop-color="#1d4ed8" stop-opacity="0.5"/>
+          <stop offset="100%" stop-color="#090d16" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      <path d="M600,220 C820,220 960,390 920,600 C880,810 690,940 500,880 C310,820 260,610 350,430 C420,290 480,220 600,220 Z" fill="url(#winPetal1)"/>
+      <path d="M650,310 C860,350 940,560 830,740 C720,920 490,950 360,810 C230,670 290,440 440,350 C520,300 580,295 650,310 Z" fill="url(#winPetal2)"/>
+    </svg>
+    <div class="bloom-petal bloom-1"></div>
+    <div class="bloom-petal bloom-2"></div>
+    <div class="bloom-petal bloom-3"></div>
+
+    <!-- Dynamic Tea Sponsor Wallpaper Frame (Updated on 🍵 Çay Gift) -->
+    <div id="tea-wallpaper-showcase" class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none px-4 transition-all duration-700">
+      <div id="tea-card" class="relative flex flex-col items-center text-center p-5 sm:p-7 rounded-3xl bg-white/10 backdrop-blur-md border border-white/25 shadow-2xl max-w-xs sm:max-w-sm transition-all duration-500 opacity-90">
+        <!-- Decorative Top Badge -->
+        <div class="px-3.5 py-1 rounded-full bg-amber-400/20 border border-amber-300/40 text-amber-200 text-xs font-bold tracking-wide uppercase mb-3 flex items-center gap-1.5 shadow">
+          <span>🍵</span>
+          <span>MASAÜSTÜ ARKA PLAN SPONSORU</span>
+        </div>
+
+        <!-- Sponsor Avatar with Glowing Ring -->
+        <div class="relative mb-3">
+          <div class="absolute -inset-1.5 rounded-full bg-gradient-to-tr from-amber-400 via-yellow-200 to-cyan-400 opacity-75 blur-sm animate-pulse"></div>
+          <img
+            id="tea-avatar-img"
+            src="https://api.dicebear.com/9.x/adventurer/svg?seed=TikTokYayinci&backgroundColor=b6e3f4"
+            onerror="this.src='https://placehold.co/160x160/1e3a8a/ffffff?text=CAY'"
+            alt="Çay Sponsoru"
+            class="relative w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover border-4 border-white/80 shadow-xl bg-slate-800"
+          />
+          <span class="absolute -bottom-1 -right-1 text-2xl sm:text-3xl drop-shadow-md">☕</span>
+        </div>
+
+        <!-- Sponsor Text -->
+        <h2 id="tea-sponsor-name" class="text-white font-extrabold text-lg sm:text-xl tracking-tight drop-shadow">
+          @cay_sever_izleyici
+        </h2>
+        <p id="tea-sponsor-subtitle" class="text-cyan-100/90 text-xs sm:text-sm font-medium mt-1">
+          Çay Ismarladı! Arka plan onun oldu ☕
+        </p>
+        <div class="mt-3 text-[11px] text-white/60 font-medium bg-black/25 px-3 py-1 rounded-full">
+          🍵 Çay at, profil resmin arka plan olsun!
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 2. DESKTOP AREA (ICONS, STATS, WINDOWS) ==================== -->
+  <div id="desktop-area" class="relative w-full h-[calc(100%-52px)] overflow-hidden z-10">
+
+    <!-- Top-Center: Viewer Like Goal Help Bar & Active Troll Alerts -->
+    <div class="absolute top-3 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2 w-[54vw] max-w-xs pointer-events-none">
+      <!-- Like Goal Bar -->
+      <div id="like-goal-widget" class="w-full rounded-2xl bg-slate-950/70 backdrop-blur-xl border border-white/20 shadow-xl px-3 py-2 text-white">
+        <div class="flex items-center justify-between text-[11px] font-bold mb-1">
+          <span class="flex items-center gap-1 text-rose-300">
+            <span>❤️</span>
+            <span>Beğeni Yardımı</span>
+          </span>
+          <span id="like-goal-counter" class="font-mono text-white">0 / 500</span>
+        </div>
+        <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden border border-white/10">
+          <div id="like-goal-bar" class="h-full bg-gradient-to-r from-rose-500 via-pink-500 to-amber-400 transition-all duration-300 rounded-full" style="width: 0%;"></div>
+        </div>
+        <div class="text-[9px] text-center text-slate-300 mt-1">
+          500 Beğenide <b>2 Pencere</b> Otomatik Temizlenir!
+        </div>
+      </div>
+
+      <!-- CPU 100% Overheat Countdown Banner -->
+      <div id="overheat-warning-banner" class="hidden w-full rounded-xl bg-red-600/95 border-2 border-yellow-300 shadow-2xl px-3 py-1.5 text-center text-white animate-bounce">
+        <div class="text-xs font-extrabold tracking-wide">🔥 CPU %100 AŞIRI ISINIYOR!</div>
+        <div class="text-[11px] font-mono font-bold text-yellow-200">
+          PC Patlamasına: <span id="overheat-countdown-text">10.0</span> sn!
+        </div>
+      </div>
+
+      <!-- Flipped Screen Countdown Banner -->
+      <div id="flip-timer-banner" class="hidden w-full rounded-xl bg-indigo-600/95 border border-indigo-300 shadow-xl px-3 py-1.5 text-center text-white">
+        <div class="text-xs font-extrabold">🙃 EKRAN TERS DÖNDÜ! (<span id="flip-countdown-text">10</span>s)</div>
+      </div>
+    </div>
+
+    <!-- Left Desktop Icons Column -->
+    <div id="desktop-icons" class="absolute top-3 left-3 flex flex-col gap-2.5 z-10 w-24">
+      <!-- Icon 1: Bilgisayarım -->
+      <button onclick="handleDesktopIconClick('pc')" class="desktop-icon group flex flex-col items-center p-2 rounded-lg hover:bg-white/15 active:bg-white/25 transition text-center focus:outline-none">
+        <div class="w-11 h-11 flex items-center justify-center rounded-xl bg-gradient-to-br from-sky-400 to-blue-600 shadow-lg border border-white/30 group-hover:scale-105 transition">
+          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+            <line x1="8" y1="21" x2="16" y2="21"></line>
+            <line x1="12" y1="17" x2="12" y2="21"></line>
+          </svg>
+        </div>
+        <span class="mt-1 text-[11px] font-medium text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)] leading-tight">
+          Bilgisayarım
+        </span>
+      </button>
+
+      <!-- Icon 2: Geri Dönüşüm Kutusu -->
+      <button onclick="handleDesktopIconClick('trash')" class="desktop-icon group flex flex-col items-center p-2 rounded-lg hover:bg-white/15 active:bg-white/25 transition text-center focus:outline-none">
+        <div class="relative w-11 h-11 flex items-center justify-center rounded-xl bg-gradient-to-br from-slate-200 to-slate-400 shadow-lg border border-white/50 group-hover:scale-105 transition">
+          <svg class="w-6 h-6 text-slate-800" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <polyline points="3 6 5 6 21 6"></polyline>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+          </svg>
+          <span id="trash-badge" class="absolute -top-1.5 -right-1.5 bg-emerald-500 text-white text-[10px] font-bold px-1.5 py-0.2 rounded-full shadow">0</span>
+        </div>
+        <span class="mt-1 text-[11px] font-medium text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)] leading-tight">
+          Geri Dönüşüm
+        </span>
+      </button>
+
+      <!-- Icon 3: Google Chrome -->
+      <button onclick="handleDesktopIconClick('chrome')" class="desktop-icon group flex flex-col items-center p-2 rounded-lg hover:bg-white/15 active:bg-white/25 transition text-center focus:outline-none">
+        <div class="w-11 h-11 flex items-center justify-center rounded-xl bg-white shadow-lg border border-white/40 group-hover:scale-105 transition">
+          <svg class="w-7 h-7" viewBox="0 0 48 48">
+            <circle cx="24" cy="24" r="20" fill="#4caf50"/>
+            <path fill="#ffc107" d="M24,4v20l10,17.3C40.1,37.8,44,31.4,44,24C44,13,35,4,24,4z"/>
+            <path fill="#f44336" d="M24,4C13,4,4,13,4,24c0,4.5,1.5,8.6,4,12l16-12V4z"/>
+            <circle cx="24" cy="24" r="9" fill="#ffffff"/>
+            <circle cx="24" cy="24" r="7" fill="#2196f3"/>
+          </svg>
+        </div>
+        <span class="mt-1 text-[11px] font-medium text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)] leading-tight">
+          Google Chrome
+        </span>
+      </button>
+
+      <!-- Icon 4: OBS Studio -->
+      <button onclick="handleDesktopIconClick('obs')" class="desktop-icon group flex flex-col items-center p-2 rounded-lg hover:bg-white/15 active:bg-white/25 transition text-center focus:outline-none">
+        <div class="w-11 h-11 flex items-center justify-center rounded-xl bg-slate-900 shadow-lg border border-slate-600 group-hover:scale-105 transition">
+          <svg class="w-7 h-7 text-white" viewBox="0 0 24 24" fill="currentColor">
+            <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/>
+            <circle cx="12" cy="8" r="3"/>
+            <circle cx="8.5" cy="14.5" r="3"/>
+            <circle cx="15.5" cy="14.5" r="3"/>
+          </svg>
+        </div>
+        <span class="mt-1 text-[11px] font-medium text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)] leading-tight">
+          OBS Studio
+        </span>
+      </button>
+
+      <!-- Icon 5: Sistem Temizleyici.exe -->
+      <button onclick="handleDesktopIconClick('cleaner')" class="desktop-icon group flex flex-col items-center p-2 rounded-lg hover:bg-white/15 active:bg-white/25 transition text-center focus:outline-none">
+        <div class="w-11 h-11 flex items-center justify-center rounded-xl bg-gradient-to-br from-emerald-400 to-teal-700 shadow-lg border border-emerald-200/50 group-hover:scale-105 transition">
+          <span class="text-xl">⚡</span>
+        </div>
+        <span class="mt-1 text-[11px] font-medium text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)] leading-tight">
+          Temizleyici.exe
+        </span>
+      </button>
+    </div>
+
+    <!-- Top-Right Transparent "Canlı Yayın İstatistikleri" Desktop Widget -->
+    <div id="stats-widget" class="absolute top-3 right-3 z-20 w-56 sm:w-64 rounded-2xl bg-slate-950/65 backdrop-blur-xl border border-white/20 shadow-2xl p-3.5 text-white">
+      <div class="flex items-center justify-between pb-2 mb-2.5 border-b border-white/15">
+        <div class="flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
+          <span class="text-xs font-bold tracking-wide uppercase text-slate-200">Canlı Yayın Durumu</span>
+        </div>
+        <span id="cpu-badge" class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
+          NORMAL
+        </span>
+      </div>
+
+      <!-- Open Windows & CPU Load Bar -->
+      <div class="mb-2.5">
+        <div class="flex justify-between items-center text-xs mb-1">
+          <span class="text-slate-300 font-medium">Açık Pencere / CPU:</span>
+          <span class="font-mono font-bold">
+            <span id="stat-open-count" class="text-amber-300">0</span>
+            <span class="text-slate-400 text-[11px]">(<span id="stat-cpu-percent">8</span>%)</span>
+          </span>
+        </div>
+        <div class="w-full h-2.5 bg-slate-800/90 rounded-full overflow-hidden border border-white/10">
+          <div id="cpu-progress-bar" class="h-full bg-gradient-to-r from-emerald-400 to-cyan-400 transition-all duration-300 rounded-full" style="width: 8%;"></div>
+        </div>
+      </div>
+
+      <!-- Closed Windows Counter -->
+      <div class="flex justify-between items-center text-xs py-1.5 px-2.5 rounded-xl bg-white/5 border border-white/10 mb-2.5">
+        <span class="text-slate-300">Kapatılan Pencere:</span>
+        <span id="stat-closed-count" class="font-mono font-extrabold text-emerald-400 text-sm">0</span>
+      </div>
+
+      <!-- Top Supporters Mini Leaderboard -->
+      <div>
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5 flex items-center justify-between">
+          <span>🏆 En Çok Destekleyenler</span>
+          <span class="text-[9px] text-slate-500">CANLI</span>
+        </div>
+        <div id="top-supporters-list" class="space-y-1 text-xs">
+          <div class="text-[11px] text-slate-400 italic py-1 text-center bg-white/5 rounded-lg">
+            Henüz hediye gelmedi...
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Incoming TikTok Live Gift Feed Toast Container (Bottom-Left above taskbar) -->
+    <div id="gift-feed-container" class="absolute bottom-3 left-3 z-30 flex flex-col gap-2 pointer-events-none max-w-[85vw] sm:max-w-xs">
+      <!-- Dynamic gift notifications injected here -->
+    </div>
+
+    <!-- Live Chat (!mesaj) Windows Notification Container (Bottom-Right above taskbar) -->
+    <div id="chat-notifications-container" class="absolute bottom-3 right-3 z-30 flex flex-col gap-2 pointer-events-none max-w-[85vw] sm:max-w-xs">
+      <!-- Dynamic !mesaj chat notifications injected here -->
+    </div>
+
+    <!-- Container for Draggable Windows 11 Popups -->
+    <div id="windows-layer" class="absolute inset-0 pointer-events-none z-20">
+      <!-- Spawned windows have pointer-events-auto -->
+    </div>
+
+    <!-- Cleaner Beam Animation Layer -->
+    <div id="cleaner-beam"></div>
+
+    <!-- Windows 11 Start Menu Popup (Hidden by default) -->
+    <div id="start-menu-popup" class="hidden absolute bottom-2 left-1/2 -translate-x-1/2 w-[92vw] max-w-md rounded-2xl bg-slate-900/90 backdrop-blur-2xl border border-white/20 shadow-2xl p-4 text-white z-40">
+      <div class="flex items-center justify-between pb-3 mb-3 border-b border-white/10">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-blue-600 to-cyan-400 flex items-center justify-center font-bold text-white shadow">W11</div>
+          <div>
+            <div class="text-sm font-bold">TikTok Yayın Masaüstü OS</div>
+            <div class="text-[11px] text-slate-400">OBS Studio & TikFinity Uyumlu Sürüm</div>
+          </div>
+        </div>
+        <button onclick="toggleStartMenu()" class="p-1.5 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white">✕</button>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2 text-xs mb-3">
+        <div class="p-2.5 rounded-xl bg-white/5 border border-white/10">
+          <div class="font-bold text-rose-400 mb-0.5">🌹 Gül Hediyesi</div>
+          <div class="text-slate-300 text-[11px]">Rastgele Chrome, OBS, X veya Sistem Hatası açar.</div>
+        </div>
+        <div class="p-2.5 rounded-xl bg-white/5 border border-white/10">
+          <div class="font-bold text-cyan-400 mb-0.5">⚡ TikTok Hediyesi</div>
+          <div class="text-slate-300 text-[11px]">Temizleyiciyi çalıştırır ve 4 pencereyi kapatır!</div>
+        </div>
+        <div class="p-2.5 rounded-xl bg-white/5 border border-white/10">
+          <div class="font-bold text-amber-400 mb-0.5">🍵 Çay Hediyesi</div>
+          <div class="text-slate-300 text-[11px]">Atan kişinin profil resmini arka plana koyar.</div>
+        </div>
+        <div class="p-2.5 rounded-xl bg-white/5 border border-white/10">
+          <div class="font-bold text-blue-400 mb-0.5">💀 Kalp Me / GG</div>
+          <div class="text-slate-300 text-[11px]">Mavi Ekran (BSOD) verir! 5 kez tıkla kurtar.</div>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between pt-2 border-t border-white/10 text-xs">
+        <button onclick="clearAllWindows(); toggleStartMenu();" class="px-3 py-1.5 rounded-lg bg-rose-600/80 hover:bg-rose-600 text-white font-semibold transition">
+          Tüm Pencereleri Temizle
+        </button>
+        <button onclick="toggleControlPanel(); toggleStartMenu();" class="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-semibold transition">
+          Kontrol & TikFinity Paneli (H)
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ==================== 3. WINDOWS 11 GLASSMORPHIC TASKBAR ==================== -->
+  <footer id="win11-taskbar" class="fixed bottom-0 left-0 right-0 h-[52px] bg-slate-950/75 backdrop-blur-2xl border-t border-white/15 px-3 flex items-center justify-between z-50 text-white">
+
+    <!-- Left Spacer / Weather-like Stream Badge (Hidden on very small screens) -->
+    <div class="hidden md:flex items-center gap-2 text-xs text-slate-300 bg-white/5 px-2.5 py-1.5 rounded-lg border border-white/10">
+      <span class="text-amber-400">🔥</span>
+      <span class="font-medium">TikTok Canlı Oyun</span>
+    </div>
+
+    <!-- Center: Start Button, Search & Active Window Tabs -->
+    <div class="flex items-center gap-1.5 overflow-x-auto max-w-[65vw] sm:max-w-[70vw] py-1">
+      <!-- Windows 11 Start Button -->
+      <button onclick="toggleStartMenu()" title="Başlat Menüsü" class="p-2 rounded-lg hover:bg-white/15 active:scale-95 transition flex-shrink-0">
+        <svg class="w-5 h-5" viewBox="0 0 24 24">
+          <rect x="2" y="2" width="9" height="9" rx="1.5" fill="#38bdf8"/>
+          <rect x="13" y="2" width="9" height="9" rx="1.5" fill="#0ea5e9"/>
+          <rect x="2" y="13" width="9" height="9" rx="1.5" fill="#0284c7"/>
+          <rect x="13" y="13" width="9" height="9" rx="1.5" fill="#0369a1"/>
+        </svg>
+      </button>
+
+      <!-- Search Pill -->
+      <button onclick="toggleControlPanel()" title="Kontrol Panelini Aç (Kısayol: H)" class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/15 border border-white/10 text-xs text-slate-300 transition flex-shrink-0">
+        <svg class="w-3.5 h-3.5 text-slate-300" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <span>Ara veya Test Et...</span>
+      </button>
+
+      <!-- Dynamic Open Window Icons in Taskbar -->
+      <div id="taskbar-windows-list" class="flex items-center gap-1 pl-1">
+        <!-- Populated dynamically -->
+      </div>
+    </div>
+
+    <!-- Right: System Tray (TikFinity Status, Mute/Unmute, Wifi, Battery, Turkish Clock) -->
+    <div class="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
+
+      <!-- TikFinity / Control Panel Toggle Button (Subtle for OBS) -->
+      <button id="tray-panel-btn" onclick="toggleControlPanel()" title="Yayıncı & TikFinity Ayarları (H Tuşu)" class="flex items-center gap-1.5 px-2 py-1.5 rounded-lg hover:bg-white/15 transition text-xs border border-white/10 bg-white/5">
+        <span id="ws-status-dot" class="w-2 h-2 rounded-full bg-amber-400"></span>
+        <span class="hidden sm:inline font-medium text-slate-200">Panel</span>
+      </button>
+
+      <!-- Sound Mute / Unmute Button -->
+      <button id="mute-toggle-btn" onclick="toggleMute()" title="Sesi Aç / Kapat" class="p-1.5 rounded-lg hover:bg-white/15 transition text-slate-200">
+        <svg id="icon-sound-on" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+          <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+        </svg>
+        <svg id="icon-sound-off" class="w-4 h-4 hidden text-rose-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+          <line x1="23" y1="9" x2="17" y2="15"></line>
+          <line x1="17" y1="9" x2="23" y2="15"></line>
+        </svg>
+      </button>
+
+      <!-- Wi-Fi & Battery Icons -->
+      <div class="hidden sm:flex items-center gap-1.5 px-1.5 py-1 rounded-lg text-slate-300">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M5 12.55a11 11 0 0 1 14.08 0"></path>
+          <path d="M1.42 9a16 16 0 0 1 21.16 0"></path>
+          <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+          <line x1="12" y1="20" x2="12.01" y2="20"></line>
+        </svg>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <rect x="1" y="6" width="18" height="12" rx="2" ry="2"></rect>
+          <line x1="23" y1="13" x2="23" y2="11"></line>
+        </svg>
+      </div>
+
+      <!-- Live Turkish System Clock -->
+      <div class="text-right leading-tight px-2 py-1 rounded-lg hover:bg-white/10 transition cursor-default">
+        <div id="clock-time" class="text-xs font-semibold text-white">00:00</div>
+        <div id="clock-date" class="text-[10px] text-slate-300">01.01.2026</div>
+      </div>
+    </div>
+  </footer>
+
+  </div><!-- End of #desktop-shell -->
+
+  <!-- Fake Virus Cursors & Confetti Layers -->
+  <div id="fake-cursors-layer" class="fixed inset-0 pointer-events-none z-[8500]"></div>
+  <div id="confetti-layer" class="fixed inset-0 pointer-events-none z-[9600]"></div>
+
+  <!-- ==================== 4. BLUE SCREEN OF DEATH (BSOD) OVERLAY ==================== -->
+  <div id="bsod-overlay" onclick="handleBsodClick()" class="hidden fixed inset-0 z-[9999] bg-[#0078d7] text-white flex flex-col justify-center items-start px-6 sm:px-16 md:px-28 cursor-pointer select-none">
+    <div class="max-w-2xl w-full">
+      <div class="text-7xl sm:text-8xl font-light mb-6">:(</div>
+      <h1 class="text-xl sm:text-3xl font-normal leading-snug mb-4">
+        Bilgisayarınız bir sorunla karşılaştı ve yeniden başlatılması gerekiyor. Şu anda bazı hata bilgileri toplanıyor, ardından yeniden başlatılacak.
+      </h1>
+
+      <div class="text-lg sm:text-2xl font-light mb-6">
+        %<span id="bsod-percent">0</span> tamamlandı
+      </div>
+
+      <!-- Interactive Recovery Progress Box for Streamer -->
+      <div class="mb-7 p-4 rounded-2xl bg-white/15 border-2 border-white/40 backdrop-blur-sm shadow-xl">
+        <div class="flex items-center justify-between mb-2">
+          <span class="font-bold text-sm sm:text-base uppercase tracking-wide text-yellow-200">
+            🚨 KURTARMAK İÇİN EKRANA HIZLICA TIKLA!
+          </span>
+          <span id="bsod-clicks-counter" class="font-mono font-extrabold text-lg bg-white text-[#0078d7] px-3 py-0.5 rounded-full">
+            0 / 5
+          </span>
+        </div>
+        <div class="w-full h-3.5 bg-blue-950/60 rounded-full overflow-hidden">
+          <div id="bsod-recovery-bar" class="h-full bg-yellow-300 transition-all duration-150" style="width: 0%;"></div>
+        </div>
+        <p id="bsod-culprit-text" class="text-xs sm:text-sm text-blue-100 mt-2 font-medium">
+          Sistemi çökerten izleyici: @izleyici
+        </p>
+      </div>
+
+      <!-- QR Code & Stop Code Footer -->
+      <div class="flex items-center gap-4">
+        <!-- Inline SVG QR Code -->
+        <div class="bg-white p-2 rounded-lg flex-shrink-0">
+          <svg class="w-16 h-16 sm:w-20 sm:h-20 text-[#0078d7]" viewBox="0 0 36 36" fill="currentColor">
+            <rect x="2" y="2" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5"/>
+            <rect x="5" y="5" width="4" height="4"/>
+            <rect x="24" y="2" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5"/>
+            <rect x="27" y="5" width="4" height="4"/>
+            <rect x="2" y="24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5"/>
+            <rect x="5" y="27" width="4" height="4"/>
+            <rect x="15" y="3" width="3" height="3"/>
+            <rect x="18" y="8" width="3" height="6"/>
+            <rect x="14" y="15" width="8" height="4"/>
+            <rect x="3" y="15" width="6" height="3"/>
+            <rect x="25" y="16" width="8" height="3"/>
+            <rect x="16" y="23" width="4" height="10"/>
+            <rect x="24" y="24" width="4" height="4"/>
+            <rect x="30" y="29" width="4" height="5"/>
+          </svg>
+        </div>
+        <div class="text-xs sm:text-sm text-blue-100 space-y-1">
+          <p>Bu sorun ve olası düzeltmeler hakkında daha fazla bilgi için TikTok canlı yayın sohbetine bakın.</p>
+          <p class="font-mono text-white font-semibold">Durdurma kodu: TIKTOK_YAYIN_HATASI</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 4B. CPU 100% OVERHEAT / PC EXPLOSION OVERLAY ==================== -->
+  <div id="overheat-overlay" class="hidden fixed inset-0 z-[9998] bg-gradient-to-b from-red-950 via-rose-900 to-black text-white flex flex-col items-center justify-center p-6 text-center select-none">
+    <div class="max-w-md w-full rounded-3xl bg-black/60 border-2 border-rose-500/80 backdrop-blur-xl p-6 sm:p-8 shadow-2xl">
+      <div class="text-6xl sm:text-7xl mb-3 animate-bounce">💥🔥💻</div>
+      <div class="inline-block px-3 py-1 rounded-full bg-rose-500/25 border border-rose-400 text-rose-200 text-xs font-extrabold uppercase tracking-wider mb-2">
+        CPU %100 AŞIRI ISINMA FİNALİ
+      </div>
+      <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight mb-2">
+        BİLGİSAYAR YANDI VE ÇÖKTÜ!
+      </h2>
+      <p class="text-xs sm:text-sm text-rose-200 mb-5">
+        Masaüstünde çok fazla pencere birikti ve işlemci 115°C sıcaklığa ulaştı!
+      </p>
+
+      <!-- PC Killer Showcase -->
+      <div class="p-4 rounded-2xl bg-gradient-to-r from-amber-500/20 via-rose-500/20 to-amber-500/20 border border-amber-400/50 mb-6">
+        <div class="text-[11px] font-bold uppercase tracking-widest text-amber-300 mb-2">
+          🏆 SON DARBEYİ VURAN PC KATİLİ 🏆
+        </div>
+        <img id="pc-killer-avatar" src="https://api.dicebear.com/9.x/adventurer/svg?seed=PCKatili" onerror="this.src='https://placehold.co/96x96/7f1d1d/ffffff?text=PC'" class="w-20 h-20 rounded-full mx-auto border-4 border-amber-300 shadow-lg object-cover mb-2" />
+        <div id="pc-killer-name" class="text-lg sm:text-xl font-extrabold text-white">
+          @son_izleyici
+        </div>
+      </div>
+
+      <button onclick="rebootAfterOverheat()" class="w-full py-3 px-5 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-extrabold text-sm sm:text-base shadow-lg transition active:scale-95 cursor-pointer">
+        🔄 Yeni Bilgisayar Kur ve Oyuna Devam Et
+      </button>
+    </div>
+  </div>
+
+  <!-- ==================== 5. STREAMER CONTROL & TIKFINITY PANEL ==================== -->
+  <div id="control-panel" class="fixed top-14 left-1/2 -translate-x-1/2 z-[9000] w-[94vw] max-w-lg rounded-2xl bg-slate-900/95 backdrop-blur-2xl border border-slate-700 shadow-2xl text-white overflow-hidden transition-all duration-200">
+    <!-- Panel Header -->
+    <div class="flex items-center justify-between px-4 py-3 bg-slate-950/80 border-b border-slate-800">
+      <div class="flex items-center gap-2">
+        <span class="text-lg">🎮</span>
+        <div>
+          <h3 class="text-sm font-bold text-white leading-none">Yayıncı Kontrol & TikFinity Paneli</h3>
+          <p class="text-[11px] text-slate-400 mt-0.5">OBS'de gizlemek için <kbd class="px-1.5 py-0.5 bg-slate-800 rounded text-slate-200 font-mono">H</kbd> tuşuna basın</p>
+        </div>
+      </div>
+      <button onclick="toggleControlPanel()" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 transition">
+        Gizle (H)
+      </button>
+    </div>
+
+    <!-- Panel Body -->
+    <div class="p-4 space-y-4 max-h-[75vh] overflow-y-auto">
+
+      <!-- Section A: TikFinity WebSocket Connection -->
+      <div class="p-3 rounded-xl bg-slate-800/70 border border-slate-700/80">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-bold uppercase tracking-wider text-cyan-400 flex items-center gap-1.5">
+            <span>🔌</span> TikFinity Canlı Bağlantı (WebSocket)
+          </span>
+          <span id="ws-badge-text" class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
+            Bağlanıyor...
+          </span>
+        </div>
+        <div class="flex gap-2">
+          <input id="ws-url-input" type="text" value="ws://localhost:21213/" class="flex-1 bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-mono text-slate-200 focus:outline-none focus:border-cyan-500" />
+          <button onclick="connectTikFinity(true)" class="px-3 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-xs font-bold text-white transition">
+            Bağlan
+          </button>
+        </div>
+        <p class="text-[11px] text-slate-400 mt-1.5">
+          TikFinity açıkken otomatik bağlanır. Eşleşmeler: <b>Gül</b> (Pencere), <b>TikTok</b> (Temizle), <b>Çay</b> (Arka Plan), <b>Kalp Me / GG</b> (Mavi Ekran), <b>Aslan</b> (Kaos).
+        </p>
+      </div>
+
+      <!-- Section B: Manual Gift Simulation Buttons -->
+      <div>
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-300">🧪 Hediye Test Simülatörü</span>
+          <div class="flex items-center gap-1.5">
+            <label for="test-username-input" class="text-[11px] text-slate-400">Gönderen:</label>
+            <input id="test-username-input" type="text" value="ahmet_yildiz34" class="w-32 bg-slate-950 border border-slate-700 rounded-lg px-2 py-1 text-xs text-white focus:outline-none focus:border-blue-500" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          <!-- Test Rose -->
+          <button onclick="simulateGift('rose')" class="flex flex-col items-center justify-center p-2.5 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/40 transition active:scale-95">
+            <span class="text-2xl mb-1">🌹</span>
+            <span class="text-xs font-bold text-rose-200">Gül At</span>
+            <span class="text-[10px] text-rose-300/80">+1 Hata Penceresi</span>
+          </button>
+
+          <!-- Test TikTok -->
+          <button onclick="simulateGift('tiktok')" class="flex flex-col items-center justify-center p-2.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/40 transition active:scale-95">
+            <span class="text-2xl mb-1">⚡</span>
+            <span class="text-xs font-bold text-emerald-200">TikTok At</span>
+            <span class="text-[10px] text-emerald-300/80">4 Pencere Temizle</span>
+          </button>
+
+          <!-- Test Tea -->
+          <button onclick="simulateGift('tea')" class="flex flex-col items-center justify-center p-2.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 transition active:scale-95">
+            <span class="text-2xl mb-1">🍵</span>
+            <span class="text-xs font-bold text-amber-200">Çay At</span>
+            <span class="text-[10px] text-amber-300/80">Arka Plan Değiştir</span>
+          </button>
+
+          <!-- Test BSOD -->
+          <button onclick="simulateGift('bsod')" class="flex flex-col items-center justify-center p-2.5 rounded-xl bg-blue-500/15 hover:bg-blue-500/25 border border-blue-500/40 transition active:scale-95">
+            <span class="text-2xl mb-1">💀</span>
+            <span class="text-xs font-bold text-blue-200">Kalp Me / GG</span>
+            <span class="text-[10px] text-blue-300/80">Mavi Ekran (BSOD)</span>
+          </button>
+
+          <!-- Test Lion / Chaos -->
+          <button onclick="simulateGift('lion')" class="flex flex-col items-center justify-center p-2.5 rounded-xl bg-purple-500/15 hover:bg-purple-500/25 border border-purple-500/40 transition active:scale-95">
+            <span class="text-2xl mb-1">🦁</span>
+            <span class="text-xs font-bold text-purple-200">Aslan (Kaos)</span>
+            <span class="text-[10px] text-purple-300/80">8 Zincirleme Hata</span>
+          </button>
+
+          <!-- Test Evasive Close Button Window -->
+          <button onclick="simulateGift('evasive')" class="flex flex-col items-center justify-center p-2.5 rounded-xl bg-orange-500/15 hover:bg-orange-500/25 border border-orange-500/40 transition active:scale-95">
+            <span class="text-2xl mb-1">🏃</span>
+            <span class="text-xs font-bold text-orange-200">Kaçan Pencere</span>
+            <span class="text-[10px] text-orange-300/80">✕ Tuşu Kaçar!</span>
+          </button>
+
+          <!-- Test Flip Screen -->
+          <button onclick="simulateGift('flip')" class="flex flex-col items-center justify-center p-2.5 rounded-xl bg-indigo-500/15 hover:bg-indigo-500/25 border border-indigo-500/40 transition active:scale-95">
+            <span class="text-2xl mb-1">🙃</span>
+            <span class="text-xs font-bold text-indigo-200">Ekranı Ters Çevir</span>
+            <span class="text-[10px] text-indigo-300/80">10 sn Baş Aşağı</span>
+          </button>
+
+          <!-- Test Fake Cursors -->
+          <button onclick="simulateGift('cursors')" class="flex flex-col items-center justify-center p-2.5 rounded-xl bg-teal-500/15 hover:bg-teal-500/25 border border-teal-500/40 transition active:scale-95">
+            <span class="text-2xl mb-1">🖱️</span>
+            <span class="text-xs font-bold text-teal-200">Sahte İmleçler</span>
+            <span class="text-[10px] text-teal-300/80">6 Virüs Faresi</span>
+          </button>
+
+          <!-- Test +100 Likes -->
+          <button onclick="addLikes(100)" class="flex flex-col items-center justify-center p-2.5 rounded-xl bg-pink-500/15 hover:bg-pink-500/25 border border-pink-500/40 transition active:scale-95">
+            <span class="text-2xl mb-1">❤️</span>
+            <span class="text-xs font-bold text-pink-200">+100 Beğeni</span>
+            <span class="text-[10px] text-pink-300/80">Yardım Barı Doldur</span>
+          </button>
+
+          <!-- Test !mesaj Chat Notification -->
+          <button onclick="simulateChatNotification()" class="flex flex-col items-center justify-center p-2.5 rounded-xl bg-sky-500/15 hover:bg-sky-500/25 border border-sky-500/40 transition active:scale-95">
+            <span class="text-2xl mb-1">💬</span>
+            <span class="text-xs font-bold text-sky-200">Test !mesaj</span>
+            <span class="text-[10px] text-sky-300/80">Sohbet Bildirimi</span>
+          </button>
+
+          <!-- Clear All -->
+          <button onclick="clearAllWindows()" class="flex flex-col items-center justify-center p-2.5 rounded-xl bg-slate-700/40 hover:bg-slate-700/70 border border-slate-600 transition active:scale-95">
+            <span class="text-2xl mb-1">🧹</span>
+            <span class="text-xs font-bold text-slate-200">Sıfırla</span>
+            <span class="text-[10px] text-slate-400">Ekranı Temizle</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Secret Keyboard Shortcuts Legend -->
+      <div class="p-2.5 rounded-xl bg-slate-950/70 border border-slate-800 text-[11px] text-slate-300">
+        <div class="font-bold text-slate-200 mb-1">⌨️ Gizli Yayıncı Klavye Kısayolları:</div>
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-1 text-[10px] font-mono">
+          <span><b class="text-rose-400">[1]</b> Gül (+Pencere)</span>
+          <span><b class="text-emerald-400">[2]</b> TikTok (Temizle)</span>
+          <span><b class="text-amber-400">[3]</b> Çay (Arka Plan)</span>
+          <span><b class="text-blue-400">[4]</b> Mavi Ekran BSOD</span>
+          <span><b class="text-indigo-400">[5]</b> Ekranı Ters Çevir</span>
+          <span><b class="text-orange-400">[6]</b> Kaçan Pencere</span>
+        </div>
+      </div>
+
+      <!-- Section C: Auto Demo Bot Mode & OBS Tips -->
+      <div class="flex items-center justify-between p-3 rounded-xl bg-slate-800/70 border border-slate-700/80">
+        <div>
+          <div class="text-xs font-bold text-white">🤖 Otomatik Demo Yayını Modu</div>
+          <div class="text-[11px] text-slate-400">Sahte izleyiciler her 2.5 sn'de bir hediye gönderir</div>
+        </div>
+        <button id="demo-mode-btn" onclick="toggleDemoMode()" class="px-3.5 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-xs font-bold text-white transition">
+          Başlat
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ==================== 6. APPLICATION LOGIC & SOUND ENGINE ==================== -->
+  <script>
+    // ==================== GLOBAL STATE ====================
+    const state = {
+      openWindows: [],        // Array of window metadata { id, type, title, sender, el }
+      zIndexCounter: 100,
+      closedCount: 0,
+      supporters: {},         // { username: { points, avatar, lastGift } }
+      isMuted: false,
+      bsodActive: false,
+      bsodClicks: 0,
+      bsodTargetClicks: 5,
+      bsodInterval: null,
+      ws: null,
+      wsConnected: false,
+      wsReconnectTimer: null,
+      demoInterval: null,
+      cleanerCooldown: false,
+      // New Viral Features State
+      likes: 0,
+      likeGoal: 500,
+      lastAttacker: { username: 'tiktok_izleyici', avatar: null },
+      overheatActive: false,
+      overheatTimer: null,
+      overheatSecondsLeft: 10.0,
+      flipTimer: null,
+      flipSecondsLeft: 0,
+      fakeCursorInterval: null
+    };
+
+    // Sample realistic Turkish usernames for Demo / Random testing
+    const sampleTurkishUsers = [
+      "kerem_demir06", "zeynep.kaya", "emirhan_tr", "selinay_35",
+      "burak_oyunda", "melisaa_x", "kaan_yilmaz", "elifnur_01",
+      "mustafa_can", "irem_su", "berkay_official", "ayse_gul34"
+    ];
+
+    const sampleChatMessages = [
+      "Abi sağ üstteki Chrome'u kapat PC yanacak 😂",
+      "Çay attım arka plan benim oldu ☕🔥",
+      "İzleyiciler beğeniye abansın yardım edelim!",
+      "Mavi ekran gelmeden yetiş abi!",
+      "Selamlar yayına yeni geldim harika konsept 👏"
+    ];
+
+    // ==================== WEB AUDIO API SOUND SYNTHESIZER ====================
+    let audioCtx = null;
+
+    function ensureAudioContext() {
+      if (!audioCtx) {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (AudioContext) {
+          audioCtx = new AudioContext();
+        }
+      }
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function playSound(type) {
+      if (state.isMuted) return;
+      try {
+        ensureAudioContext();
+        if (!audioCtx) return;
+
+        const now = audioCtx.currentTime;
+
+        if (type === 'error') {
+          // Classic Windows Error Chord (Dissonant Dual Tone)
+          const osc1 = audioCtx.createOscillator();
+          const osc2 = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc1.type = 'triangle';
+          osc2.type = 'sawtooth';
+          osc1.frequency.setValueAtTime(320, now);
+          osc1.frequency.exponentialRampToValueAtTime(210, now + 0.22);
+          osc2.frequency.setValueAtTime(240, now);
+          osc2.frequency.exponentialRampToValueAtTime(160, now + 0.22);
+
+          gain.gain.setValueAtTime(0.14, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.26);
+
+          osc1.connect(gain);
+          osc2.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc1.start(now);
+          osc2.start(now);
+          osc1.stop(now + 0.27);
+          osc2.stop(now + 0.27);
+        }
+        else if (type === 'pop') {
+          // Crisp Window Open Pop
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(420, now);
+          osc.frequency.exponentialRampToValueAtTime(680, now + 0.09);
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.11);
+        }
+        else if (type === 'close') {
+          // Satisfying Window Close Bloop
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(620, now);
+          osc.frequency.exponentialRampToValueAtTime(310, now + 0.08);
+          gain.gain.setValueAtTime(0.14, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.1);
+        }
+        else if (type === 'clean') {
+          // Futuristic System Cleaner Arpeggio Chime
+          const notes = [523.25, 659.25, 783.99, 1046.50];
+          notes.forEach((freq, idx) => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, now + idx * 0.06);
+            gain.gain.setValueAtTime(0.11, now + idx * 0.06);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.06 + 0.22);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(now + idx * 0.06);
+            osc.stop(now + idx * 0.06 + 0.24);
+          });
+        }
+        else if (type === 'tea') {
+          // Warm Cozy Tea Bell
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(880, now);
+          osc.frequency.setValueAtTime(1174.66, now + 0.09);
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.46);
+        }
+        else if (type === 'bsod') {
+          // Low Glitch Buzz for Blue Screen
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(110, now);
+          osc.frequency.linearRampToValueAtTime(65, now + 0.55);
+          gain.gain.setValueAtTime(0.22, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.62);
+        }
+        else if (type === 'click') {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(750, now);
+          gain.gain.setValueAtTime(0.1, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.06);
+        }
+      } catch (e) {
+        // Ignore audio errors if user hasn't interacted with page yet
+      }
+    }
+
+    function toggleMute() {
+      state.isMuted = !state.isMuted;
+      document.getElementById('icon-sound-on').classList.toggle('hidden', state.isMuted);
+      document.getElementById('icon-sound-off').classList.toggle('hidden', !state.isMuted);
+      if (state.isMuted && 'speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+      if (!state.isMuted) playSound('pop');
+    }
+
+    // ==================== TURKISH TEXT-TO-SPEECH (TTS) & CONFETTI ====================
+    function speakTurkish(text) {
+      if (state.isMuted || !('speechSynthesis' in window)) return;
+      try {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'tr-TR';
+        utterance.rate = 1.06;
+        utterance.pitch = 1.02;
+        const voices = window.speechSynthesis.getVoices();
+        const trVoice = voices.find(v => v.lang && v.lang.toLowerCase().includes('tr'));
+        if (trVoice) utterance.voice = trVoice;
+        window.speechSynthesis.speak(utterance);
+      } catch (_) {}
+    }
+
+    function triggerConfetti(count = 45) {
+      const layer = document.getElementById('confetti-layer');
+      const colors = ['#f43f5e', '#fbbf24', '#34d399', '#38bdf8', '#a855f7', '#fb7185'];
+      for (let i = 0; i < count; i++) {
+        const piece = document.createElement('div');
+        piece.className = 'confetti-piece';
+        piece.style.left = `${Math.random() * 100}vw`;
+        piece.style.backgroundColor = colors[i % colors.length];
+        piece.style.animationDuration = `${1.8 + Math.random() * 1.6}s`;
+        piece.style.animationDelay = `${Math.random() * 0.25}s`;
+        layer.appendChild(piece);
+        setTimeout(() => piece.remove(), 3600);
+      }
+    }
+
+    // ==================== VIEWER LIKE GOAL & !MESAJ CHAT NOTIFICATIONS ====================
+    function addLikes(amount = 1) {
+      state.likes += amount;
+      while (state.likes >= state.likeGoal) {
+        state.likes -= state.likeGoal;
+        // Reward viewers by automatically closing 2 windows!
+        playSound('clean');
+        triggerConfetti(30);
+        const closed = Math.min(2, state.openWindows.length);
+        const targets = state.openWindows.slice(0, closed).map(w => w.id);
+        targets.forEach((id, idx) => setTimeout(() => closeWindow(id, true), idx * 100));
+        showGiftToast(
+          'Sohbet Ekibi',
+          getAvatarUrl('BegeniYardimi'),
+          '❤️',
+          `500 Beğeni Hedefi Doldu! ${closed} pencere temizlendi!`,
+          'bg-pink-950/90 border-pink-400/70'
+        );
+      }
+      const pct = Math.min(100, (state.likes / state.likeGoal) * 100);
+      document.getElementById('like-goal-bar').style.width = `${pct}%`;
+      document.getElementById('like-goal-counter').textContent = `${state.likes} / ${state.likeGoal}`;
+    }
+
+    function showChatMessageNotification(username, avatarUrl, messageText) {
+      if (!messageText) return;
+      playSound('pop');
+      const container = document.getElementById('chat-notifications-container');
+      const card = document.createElement('div');
+      card.className = 'flex items-start gap-2.5 p-3 rounded-2xl bg-slate-900/90 backdrop-blur-xl border border-sky-400/50 shadow-2xl text-white transition-all duration-300';
+      card.style.animation = 'winPopIn 0.25s ease-out forwards';
+
+      card.innerHTML = `
+        <img src="${avatarUrl}" onerror="this.src='https://placehold.co/48x48/0284c7/ffffff?text=MSG'" class="w-9 h-9 rounded-full object-cover border-2 border-sky-400 flex-shrink-0 mt-0.5" />
+        <div class="min-w-0 flex-1">
+          <div class="flex items-center justify-between gap-1">
+            <span class="text-xs font-extrabold text-sky-300 truncate">@${escapeHtml(username)}</span>
+            <span class="text-[9px] bg-sky-500/20 text-sky-200 px-1.5 py-0.5 rounded font-semibold">Canlı Mesaj</span>
+          </div>
+          <p class="text-xs text-slate-100 mt-0.5 break-words leading-snug">${escapeHtml(messageText)}</p>
+        </div>
+      `;
+
+      container.appendChild(card);
+      while (container.children.length > 3) {
+        container.removeChild(container.firstChild);
+      }
+
+      setTimeout(() => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateX(20px)';
+        setTimeout(() => card.remove(), 300);
+      }, 4500);
+    }
+
+    function simulateChatNotification() {
+      ensureAudioContext();
+      const user = sampleTurkishUsers[Math.floor(Math.random() * sampleTurkishUsers.length)];
+      const msg = sampleChatMessages[Math.floor(Math.random() * sampleChatMessages.length)];
+      showChatMessageNotification(user, getAvatarUrl(user), msg);
+    }
+
+    // ==================== LIVE TURKISH CLOCK ====================
+    function updateClock() {
+      const now = new Date();
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const year = now.getFullYear();
+
+      document.getElementById('clock-time').textContent = `${hours}:${minutes}`;
+      document.getElementById('clock-date').textContent = `${day}.${month}.${year}`;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // ==================== AVATAR & SUPPORTER HELPERS ====================
+    function getAvatarUrl(username, customUrl) {
+      if (customUrl && customUrl.startsWith('http')) {
+        return customUrl;
+      }
+      const cleanSeed = encodeURIComponent(username || 'tiktok_user');
+      return `https://api.dicebear.com/9.x/adventurer/svg?seed=${cleanSeed}&backgroundColor=b6e3f4,c0aede,d1d4f9`;
+    }
+
+    function recordSupporter(username, points, avatarUrl, giftLabel) {
+      if (!username) username = 'anonim_izleyici';
+      if (!state.supporters[username]) {
+        state.supporters[username] = {
+          points: 0,
+          avatar: avatarUrl,
+          lastGift: giftLabel
+        };
+      }
+      state.supporters[username].points += points;
+      if (avatarUrl) state.supporters[username].avatar = avatarUrl;
+      state.supporters[username].lastGift = giftLabel;
+      updateStatsUI();
+    }
+
+    function updateStatsUI() {
+      const openCount = state.openWindows.length;
+      document.getElementById('stat-open-count').textContent = openCount;
+      document.getElementById('stat-closed-count').textContent = state.closedCount;
+      document.getElementById('trash-badge').textContent = state.closedCount;
+
+      // Calculate dynamic CPU % based on open windows
+      const cpuPercent = Math.min(100, 6 + openCount * 6);
+      document.getElementById('stat-cpu-percent').textContent = cpuPercent;
+
+      const bar = document.getElementById('cpu-progress-bar');
+      const badge = document.getElementById('cpu-badge');
+      bar.style.width = `${cpuPercent}%`;
+
+      if (openCount >= 15 || cpuPercent >= 90) {
+        bar.className = 'h-full bg-gradient-to-r from-rose-500 to-red-600 transition-all duration-300 rounded-full animate-pulse';
+        badge.textContent = 'KRİTİK YÜK!';
+        badge.className = 'text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-rose-500/30 text-rose-200 border border-rose-400/50 animate-pulse';
+      } else if (openCount >= 7) {
+        bar.className = 'h-full bg-gradient-to-r from-amber-400 to-orange-500 transition-all duration-300 rounded-full';
+        badge.textContent = 'YÜKSEK';
+        badge.className = 'text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-amber-500/25 text-amber-200 border border-amber-400/40';
+      } else {
+        bar.className = 'h-full bg-gradient-to-r from-emerald-400 to-cyan-400 transition-all duration-300 rounded-full';
+        badge.textContent = 'NORMAL';
+        badge.className = 'text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30';
+      }
+
+      // Render Top 3 Supporters
+      const listEl = document.getElementById('top-supporters-list');
+      const sorted = Object.entries(state.supporters)
+        .sort((a, b) => b[1].points - a[1].points)
+        .slice(0, 3);
+
+      if (sorted.length === 0) return;
+
+      const medals = ['🥇', '🥈', '🥉'];
+      listEl.innerHTML = sorted.map(([user, info], idx) => `
+        <div class="flex items-center justify-between px-2 py-1 rounded-lg bg-white/10 border border-white/10">
+          <div class="flex items-center gap-1.5 min-w-0">
+            <span class="text-xs">${medals[idx]}</span>
+            <img src="${info.avatar}" onerror="this.src='https://placehold.co/32x32/1e293b/ffffff?text=U'" class="w-4 h-4 rounded-full object-cover flex-shrink-0" />
+            <span class="truncate font-semibold text-[11px] text-white">@${escapeHtml(user)}</span>
+          </div>
+          <span class="font-mono text-[10px] font-bold text-amber-300 ml-1 flex-shrink-0">${info.points}p</span>
+        </div>
+      `).join('');
+
+      renderTaskbarWindows();
+      checkOverheatState();
+    }
+
+    // ==================== CPU 100% OVERHEAT COUNTDOWN & PC EXPLOSION ====================
+    function checkOverheatState() {
+      const cpuPercent = Math.min(100, 6 + state.openWindows.length * 6);
+      const banner = document.getElementById('overheat-warning-banner');
+
+      if (cpuPercent >= 100 && !state.overheatActive && !state.bsodActive) {
+        if (!state.overheatTimer) {
+          state.overheatSecondsLeft = 10.0;
+          banner.classList.remove('hidden');
+          document.getElementById('overheat-countdown-text').textContent = state.overheatSecondsLeft.toFixed(1);
+
+          state.overheatTimer = setInterval(() => {
+            if (state.bsodActive) return;
+            state.overheatSecondsLeft = Math.max(0, state.overheatSecondsLeft - 0.1);
+            document.getElementById('overheat-countdown-text').textContent = state.overheatSecondsLeft.toFixed(1);
+
+            if (state.overheatSecondsLeft <= 0) {
+              clearInterval(state.overheatTimer);
+              state.overheatTimer = null;
+              banner.classList.add('hidden');
+              triggerOverheatCrash();
+            }
+          }, 100);
+        }
+      } else if (cpuPercent < 100 && state.overheatTimer) {
+        clearInterval(state.overheatTimer);
+        state.overheatTimer = null;
+        banner.classList.add('hidden');
+      }
+    }
+
+    function triggerOverheatCrash() {
+      state.overheatActive = true;
+      playSound('bsod');
+      const killer = state.lastAttacker;
+      const killerAvatar = getAvatarUrl(killer.username, killer.avatar);
+
+      document.getElementById('pc-killer-name').textContent = `@${killer.username}`;
+      document.getElementById('pc-killer-avatar').src = killerAvatar;
+      document.getElementById('overheat-overlay').classList.remove('hidden');
+
+      speakTurkish(`Eyvah! Bilgisayar aşırı ısındı ve yandı! Bilgisayar katili ${killer.username}`);
+    }
+
+    function rebootAfterOverheat() {
+      state.overheatActive = false;
+      document.getElementById('overheat-overlay').classList.add('hidden');
+      clearAllWindows();
+    }
+
+    function renderTaskbarWindows() {
+      const container = document.getElementById('taskbar-windows-list');
+      const visibleTabs = state.openWindows.slice(-5); // Show latest 5 in taskbar
+      container.innerHTML = visibleTabs.map(win => {
+        const iconMap = {
+          chrome: '🌐',
+          obs: '🎥',
+          twitter: '𝕏',
+          system: '⚠️'
+        };
+        return `
+          <button onclick="focusWindow('${win.id}')" class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 border-b-2 border-cyan-400 text-xs text-white transition max-w-[110px]">
+            <span>${iconMap[win.type] || '🪟'}</span>
+            <span class="truncate text-[11px]">${escapeHtml(win.shortTitle)}</span>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    // ==================== GIFT FEED BANNER ====================
+    function showGiftToast(username, avatarUrl, emoji, titleText, colorClass) {
+      const container = document.getElementById('gift-feed-container');
+      const toast = document.createElement('div');
+      toast.className = `flex items-center gap-2.5 px-3 py-2 rounded-2xl backdrop-blur-xl border shadow-xl text-white transition-all duration-300 ${colorClass}`;
+      toast.style.animation = 'winPopIn 0.25s ease-out forwards';
+
+      toast.innerHTML = `
+        <img src="${avatarUrl}" onerror="this.src='https://placehold.co/48x48/0f172a/ffffff?text=TT'" class="w-9 h-9 rounded-full object-cover border-2 border-white/70 flex-shrink-0" />
+        <div class="min-w-0 flex-1">
+          <div class="text-xs font-extrabold truncate">@${escapeHtml(username)}</div>
+          <div class="text-[11px] font-medium opacity-95 truncate">${emoji} ${escapeHtml(titleText)}</div>
+        </div>
+      `;
+
+      container.appendChild(toast);
+
+      // Keep max 3 toasts
+      while (container.children.length > 3) {
+        container.removeChild(container.firstChild);
+      }
+
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(-20px)';
+        setTimeout(() => toast.remove(), 300);
+      }, 3400);
+    }
+
+    // ==================== DRAGGABLE WINDOWS 11 POPUP GENERATOR ====================
+    const windowTemplates = [
+      {
+        type: 'chrome',
+        shortTitle: 'Chrome',
+        buildHtml: (sender) => ({
+          headerBg: 'bg-slate-200 text-slate-800 border-b border-slate-300',
+          bodyBg: 'bg-white text-slate-900',
+          icon: `<span class="w-3.5 h-3.5 rounded-full bg-gradient-to-tr from-red-500 via-yellow-400 to-green-500 inline-block"></span>`,
+          title: 'Google Chrome - Bedava Jeton Kazandınız!',
+          content: `
+            <div class="bg-slate-100 px-2.5 py-1.5 border-b border-slate-200 flex items-center gap-2 text-[11px] text-slate-500">
+              <span>🔒</span>
+              <span class="bg-white px-2 py-0.5 rounded-full border border-slate-200 flex-1 truncate font-mono text-[10px]">https://bedava-tiktok-jeton-2026.com.tr</span>
+            </div>
+            <div class="p-3.5 text-center space-y-2">
+              <div class="inline-block px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-bold animate-bounce">
+                🎉 TEBRİKLER YAYINCI!
+              </div>
+              <h4 class="font-extrabold text-sm text-slate-900">10.000 Bedava Jeton & 500 Mbps İnternet Kazandınız!</h4>
+              <p class="text-xs text-slate-600">Ödülünüzü almak için bu pencereyi hemen kapatmanız gerekiyor!</p>
+            </div>
+          `
+        })
+      },
+      {
+        type: 'obs',
+        shortTitle: 'OBS Uyarı',
+        buildHtml: (sender) => ({
+          headerBg: 'bg-slate-900 text-slate-100 border-b border-slate-700',
+          bodyBg: 'bg-slate-800 text-white',
+          icon: `<span class="text-xs">🎥</span>`,
+          title: 'OBS Studio 30.2 - Kodlama Uyarısı',
+          content: `
+            <div class="p-3.5 flex items-start gap-3">
+              <div class="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-400/50 flex items-center justify-center text-xl flex-shrink-0">
+                ⚠️
+              </div>
+              <div class="space-y-1">
+                <div class="text-xs font-extrabold text-amber-300">Kodlama Aşırı Yüklendi!</div>
+                <p class="text-[11px] text-slate-300 leading-relaxed">
+                  Yayın FPS değeri <b>14 FPS</b>'e düştü! Atlanan kareler: <span class="text-rose-400 font-mono font-bold">%68.4</span>. Lütfen açık pencereleri kapatın!
+                </p>
+              </div>
+            </div>
+          `
+        })
+      },
+      {
+        type: 'twitter',
+        shortTitle: 'X Gündem',
+        buildHtml: (sender) => ({
+          headerBg: 'bg-black text-white border-b border-zinc-800',
+          bodyBg: 'bg-zinc-950 text-white',
+          icon: `<span class="font-extrabold text-xs">𝕏</span>`,
+          title: 'X (Twitter) - Türkiye Gündemi #1',
+          content: `
+            <div class="p-3.5 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-[10px] font-bold text-sky-400 uppercase tracking-wider">Türkiye'de Gündem</span>
+                <span class="text-[10px] text-zinc-400">Az önce</span>
+              </div>
+              <div class="text-sm font-extrabold text-white">#YayıncıMasaüstünüKaybetti</div>
+              <p class="text-xs text-zinc-300">
+                "@${escapeHtml(sender)} gül attı, yayıncının ekranı hatalarla doldu! İzleyiciler gülüyor 😂"
+              </p>
+              <div class="flex gap-4 text-[11px] text-zinc-400 pt-1">
+                <span>💬 1.4B</span>
+                <span>🔁 8.9B</span>
+                <span>❤️ 42.1B</span>
+              </div>
+            </div>
+          `
+        })
+      },
+      {
+        type: 'system',
+        shortTitle: 'Sistem Hatası',
+        buildHtml: (sender) => ({
+          headerBg: 'bg-rose-950 text-rose-100 border-b border-rose-800',
+          bodyBg: 'bg-slate-900 text-white',
+          icon: `<span class="text-xs">🛑</span>`,
+          title: 'Windows 11 Sistem Uyarısı (0x8007000E)',
+          content: `
+            <div class="p-3.5 flex items-start gap-3">
+              <div class="w-10 h-10 rounded-full bg-rose-600/30 border border-rose-500 flex items-center justify-center text-lg flex-shrink-0">
+                ❌
+              </div>
+              <div class="space-y-1">
+                <div class="text-xs font-extrabold text-rose-300">Bellek (RAM) Kullanımı %98!</div>
+                <p class="text-[11px] text-slate-300 leading-relaxed">
+                  Masaüstünde çok fazla pencere birikti. Sistem kilitlenmeden önce <b>✕</b> butonuna basarak kapatın!
+                </p>
+              </div>
+            </div>
+          `
+        })
+      }
+    ];
+
+    function spawnPopupWindow(sender, forcedType = null, customCoords = null) {
+      // Cap maximum open windows at 35 to prevent browser freeze
+      if (state.openWindows.length >= 35) {
+        const oldest = state.openWindows[0];
+        if (oldest) closeWindow(oldest.id, false);
+      }
+
+      const template = forcedType
+        ? windowTemplates.find(t => t.type === forcedType) || windowTemplates[0]
+        : windowTemplates[Math.floor(Math.random() * windowTemplates.length)];
+
+      const id = 'win_' + Date.now() + '_' + Math.floor(Math.random() * 10000);
+      const viewData = template.buildHtml(sender);
+
+      const desktop = document.getElementById('desktop-area');
+      const dRect = desktop.getBoundingClientRect();
+
+      // Responsive width suitable for both 9:16 vertical (1080x1920) & 16:9 desktop
+      const winWidth = Math.min(330, Math.max(250, dRect.width * 0.78));
+      const estimatedHeight = 185;
+
+      let posX, posY;
+      if (customCoords) {
+        posX = Math.max(10, Math.min(dRect.width - winWidth - 10, customCoords.x));
+        posY = Math.max(10, Math.min(dRect.height - estimatedHeight - 10, customCoords.y));
+      } else {
+        const maxX = Math.max(16, dRect.width - winWidth - 16);
+        const maxY = Math.max(50, dRect.height - estimatedHeight - 20);
+        posX = Math.floor(12 + Math.random() * (maxX - 12));
+        posY = Math.floor(45 + Math.random() * (maxY - 45));
+      }
+
+      state.zIndexCounter += 1;
+
+      const winEl = document.createElement('div');
+      winEl.id = id;
+      winEl.className = 'win-window pointer-events-auto';
+      winEl.style.width = `${winWidth}px`;
+      winEl.style.left = `${posX}px`;
+      winEl.style.top = `${posY}px`;
+      winEl.style.zIndex = state.zIndexCounter;
+
+      winEl.innerHTML = `
+        <!-- Draggable Title Bar -->
+        <div class="win-titlebar flex items-center justify-between px-3 py-2 ${viewData.headerBg}">
+          <div class="flex items-center gap-2 min-w-0 pr-2">
+            ${viewData.icon}
+            <span class="text-xs font-bold truncate">${viewData.title}</span>
+          </div>
+          <!-- Large Streamer-Friendly Close Button -->
+          <button
+            onclick="event.stopPropagation(); closeWindow('${id}', true);"
+            onpointerdown="event.stopPropagation();"
+            title="Pencereyi Kapat"
+            class="w-7 h-7 rounded-lg bg-rose-600 hover:bg-rose-500 active:scale-90 text-white font-extrabold text-xs flex items-center justify-center shadow transition flex-shrink-0 cursor-pointer"
+          >
+            ✕
+          </button>
+        </div>
+
+        <!-- Window Body -->
+        <div class="${viewData.bodyBg}">
+          ${viewData.content}
+          <!-- Sender Attribution Strip -->
+          <div class="px-3 py-1.5 bg-black/10 border-t border-white/10 flex items-center justify-between text-[10px]">
+            <span class="font-semibold opacity-85 truncate">🌹 <b>@${escapeHtml(sender)}</b> gönderdi</span>
+            <button
+              onclick="closeWindow('${id}', true)"
+              class="px-2 py-0.5 rounded bg-rose-600/90 hover:bg-rose-600 text-white font-bold transition cursor-pointer"
+            >
+              Kapat
+            </button>
+          </div>
+        </div>
+      `;
+
+      // Bring to front on pointer down
+      winEl.addEventListener('pointerdown', () => {
+        state.zIndexCounter += 1;
+        winEl.style.zIndex = state.zIndexCounter;
+      });
+
+      makeElementDraggable(winEl);
+
+      document.getElementById('windows-layer').appendChild(winEl);
+      state.openWindows.push({
+        id,
+        type: template.type,
+        shortTitle: template.shortTitle,
+        sender,
+        el: winEl
+      });
+
+      playSound('error');
+      updateStatsUI();
+    }
+
+    // ==================== EVASIVE DODGING CLOSE BUTTON WINDOW ====================
+    function spawnEvasiveWindow(sender) {
+      if (state.openWindows.length >= 35) {
+        const oldest = state.openWindows[0];
+        if (oldest) closeWindow(oldest.id, false);
+      }
+
+      const id = 'win_evasive_' + Date.now() + '_' + Math.floor(Math.random() * 10000);
+      const desktop = document.getElementById('desktop-area');
+      const dRect = desktop.getBoundingClientRect();
+      const winWidth = Math.min(330, Math.max(255, dRect.width * 0.78));
+      const posX = Math.floor(14 + Math.random() * Math.max(16, dRect.width - winWidth - 28));
+      const posY = Math.floor(65 + Math.random() * Math.max(40, dRect.height - 260));
+
+      state.zIndexCounter += 1;
+      let dodgesLeft = 4;
+
+      const winEl = document.createElement('div');
+      winEl.id = id;
+      winEl.className = 'win-window pointer-events-auto ring-2 ring-orange-400';
+      winEl.style.width = `${winWidth}px`;
+      winEl.style.left = `${posX}px`;
+      winEl.style.top = `${posY}px`;
+      winEl.style.zIndex = state.zIndexCounter;
+
+      winEl.innerHTML = `
+        <div class="win-titlebar flex items-center justify-between px-3 py-2 bg-gradient-to-r from-orange-600 to-amber-600 text-white">
+          <div class="flex items-center gap-1.5 min-w-0 pr-2">
+            <span>🏃</span>
+            <span class="text-xs font-extrabold truncate">Yakala Bakalım! (Kaçan Pencere)</span>
+          </div>
+          <button
+            id="evasive-btn-${id}"
+            title="Beni Yakala!"
+            class="evasive-close-btn w-7 h-7 rounded-lg bg-slate-950 hover:bg-rose-600 text-white font-extrabold text-xs flex items-center justify-center shadow-lg flex-shrink-0 cursor-pointer"
+          >
+            ✕
+          </button>
+        </div>
+        <div class="bg-slate-900 text-white p-3.5 text-center space-y-2">
+          <div class="text-xs font-bold text-orange-300">
+            😜 Kapatma tuşu <span id="dodge-count-${id}" class="underline">4 kez</span> kaçacak!
+          </div>
+          <p class="text-[11px] text-slate-300">
+            <b>@${escapeHtml(sender)}</b> trol hediyesi attı! Farenle çarpı tuşunu yakalamaya çalış!
+          </p>
+        </div>
+      `;
+
+      const dodgeBtn = winEl.querySelector(`#evasive-btn-${id}`);
+      const countSpan = winEl.querySelector(`#dodge-count-${id}`);
+
+      const dodgeHandler = (e) => {
+        if (dodgesLeft > 0) {
+          e.preventDefault();
+          e.stopPropagation();
+          dodgesLeft -= 1;
+          playSound('pop');
+          const offsetX = -(35 + Math.floor(Math.random() * 145));
+          const offsetY = Math.floor(Math.random() * 75);
+          dodgeBtn.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+          countSpan.textContent = dodgesLeft > 0 ? `${dodgesLeft} kez` : 'Yakaladın! Şimdi bas!';
+          if (dodgesLeft === 0) {
+            dodgeBtn.classList.remove('bg-slate-950');
+            dodgeBtn.classList.add('bg-emerald-500', 'animate-pulse');
+          }
+        } else {
+          closeWindow(id, true);
+        }
+      };
+
+      dodgeBtn.addEventListener('pointerenter', dodgeHandler);
+      dodgeBtn.addEventListener('click', dodgeHandler);
+
+      winEl.addEventListener('pointerdown', () => {
+        state.zIndexCounter += 1;
+        winEl.style.zIndex = state.zIndexCounter;
+      });
+
+      makeElementDraggable(winEl);
+      document.getElementById('windows-layer').appendChild(winEl);
+      state.openWindows.push({
+        id,
+        type: 'system',
+        shortTitle: 'Kaçan Pencere',
+        sender,
+        el: winEl
+      });
+
+      playSound('error');
+      updateStatsUI();
+    }
+
+    // ==================== 180-DEGREE SCREEN FLIP & FAKE VIRUS CURSORS ====================
+    function triggerScreenFlip(user, avatar, durationSec = 10) {
+      playSound('bsod');
+      showGiftToast(user, avatar, '🙃', `Ekranı ${durationSec} sn baş aşağı çevirdi!`, 'bg-indigo-950/90 border-indigo-400/70');
+
+      const shell = document.getElementById('desktop-shell');
+      const banner = document.getElementById('flip-timer-banner');
+      const countdownEl = document.getElementById('flip-countdown-text');
+
+      shell.classList.add('flipped-screen');
+      banner.classList.remove('hidden');
+      state.flipSecondsLeft = durationSec;
+      countdownEl.textContent = state.flipSecondsLeft;
+
+      if (state.flipTimer) clearInterval(state.flipTimer);
+      state.flipTimer = setInterval(() => {
+        state.flipSecondsLeft -= 1;
+        countdownEl.textContent = Math.max(0, state.flipSecondsLeft);
+        if (state.flipSecondsLeft <= 0) {
+          clearInterval(state.flipTimer);
+          state.flipTimer = null;
+          shell.classList.remove('flipped-screen');
+          banner.classList.add('hidden');
+          playSound('clean');
+        }
+      }, 1000);
+    }
+
+    function triggerFakeCursors(user, avatar, durationMs = 15000) {
+      playSound('error');
+      showGiftToast(user, avatar, '🖱️', '6 Sahte Virüs İmleci gönderdi!', 'bg-teal-950/90 border-teal-400/70');
+
+      const layer = document.getElementById('fake-cursors-layer');
+      layer.innerHTML = '';
+      if (state.fakeCursorInterval) clearInterval(state.fakeCursorInterval);
+
+      const cursors = [];
+      for (let i = 0; i < 6; i++) {
+        const c = document.createElement('div');
+        c.className = 'fake-cursor';
+        c.style.left = `${15 + Math.random() * 70}vw`;
+        c.style.top = `${15 + Math.random() * 70}vh`;
+        c.innerHTML = `
+          <svg class="w-6 h-6 text-white" viewBox="0 0 24 24" fill="currentColor" stroke="#000000" stroke-width="1.5">
+            <path d="M5.5 3.21V20.8c0 .45.54.67.85.35l4.86-4.86a.5.5 0 0 1 .35-.15h6.87a.5.5 0 0 0 .35-.85L6.35 2.85a.5.5 0 0 0-.85.35Z"/>
+          </svg>
+        `;
+        layer.appendChild(c);
+        cursors.push(c);
+      }
+
+      state.fakeCursorInterval = setInterval(() => {
+        cursors.forEach(c => {
+          c.style.left = `${8 + Math.random() * 82}vw`;
+          c.style.top = `${8 + Math.random() * 82}vh`;
+        });
+      }, 480);
+
+      setTimeout(() => {
+        if (state.fakeCursorInterval) {
+          clearInterval(state.fakeCursorInterval);
+          state.fakeCursorInterval = null;
+        }
+        layer.innerHTML = '';
+      }, durationMs);
+    }
+
+      if (winObj.el) {
+        winObj.el.classList.add('closing');
+        setTimeout(() => {
+          if (winObj.el && winObj.el.parentNode) {
+            winObj.el.remove();
+          }
+        }, 160);
+      }
+
+      updateStatsUI();
+    }
+
+    function focusWindow(id) {
+      const winObj = state.openWindows.find(w => w.id === id);
+      if (!winObj || !winObj.el) return;
+      state.zIndexCounter += 1;
+      winObj.el.style.zIndex = state.zIndexCounter;
+      winObj.el.style.transform = 'scale(1.04)';
+      setTimeout(() => {
+        if (winObj.el) winObj.el.style.transform = 'scale(1)';
+      }, 150);
+    }
+
+    function clearAllWindows() {
+      const ids = state.openWindows.map(w => w.id);
+      ids.forEach(id => closeWindow(id, true));
+      playSound('clean');
+    }
+
+    // ==================== DRAG & TOUCH HANDLER ====================
+    function makeElementDraggable(winEl) {
+      const titlebar = winEl.querySelector('.win-titlebar');
+      let isDragging = false;
+      let startX = 0, startY = 0, initialLeft = 0, initialTop = 0;
+
+      titlebar.addEventListener('pointerdown', (e) => {
+        if (e.target.closest('button')) return;
+        isDragging = true;
+        startX = e.clientX;
+        startY = e.clientY;
+        initialLeft = winEl.offsetLeft;
+        initialTop = winEl.offsetTop;
+        titlebar.setPointerCapture(e.pointerId);
+      });
+
+      titlebar.addEventListener('pointermove', (e) => {
+        if (!isDragging) return;
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+        const desktop = document.getElementById('desktop-area');
+        const maxLeft = desktop.clientWidth - winEl.offsetWidth;
+        const maxTop = desktop.clientHeight - winEl.offsetHeight;
+
+    // ==================== GIFT ACTIONS (ROSE, TIKTOK, TEA, BSOD, LION, TROLLS) ====================
+    function triggerGiftEvent(giftType, username, avatarUrl = null) {
+      const user = (username || 'tiktok_izleyici').trim();
+      const avatar = getAvatarUrl(user, avatarUrl);
+
+      if (giftType === 'rose') {
+        state.lastAttacker = { username: user, avatar };
+        recordSupporter(user, 1, avatar, '🌹 Gül');
+        spawnPopupWindow(user);
+        showGiftToast(user, avatar, '🌹', 'Gül gönderdi! (+1 Pencere)', 'bg-rose-950/85 border-rose-500/50');
+      }
+      else if (giftType === 'tiktok') {
+        recordSupporter(user, 5, avatar, '⚡ TikTok');
+        triggerSystemCleaner(user, avatar);
+      }
+      else if (giftType === 'tea') {
+        recordSupporter(user, 10, avatar, '🍵 Çay');
+        triggerTeaWallpaper(user, avatar);
+      }
+      else if (giftType === 'bsod') {
+        state.lastAttacker = { username: user, avatar };
+        recordSupporter(user, 25, avatar, '💀 Mavi Ekran');
+        triggerBsodEvent(user, avatar);
+      }
+      else if (giftType === 'lion') {
+        state.lastAttacker = { username: user, avatar };
+        recordSupporter(user, 100, avatar, '🦁 Aslan Kaosu');
+        triggerLionChaos(user, avatar);
+      }
+      else if (giftType === 'evasive') {
+        state.lastAttacker = { username: user, avatar };
+        recordSupporter(user, 15, avatar, '🏃 Kaçan Pencere');
+        spawnEvasiveWindow(user);
+        showGiftToast(user, avatar, '🏃', 'Kaçan Pencere attı! Yakala!', 'bg-orange-950/90 border-orange-400/60');
+      }
+      else if (giftType === 'flip') {
+        recordSupporter(user, 20, avatar, '🙃 Ters Ekran');
+        triggerScreenFlip(user, avatar, 10);
+      }
+      else if (giftType === 'cursors') {
+        recordSupporter(user, 15, avatar, '🖱️ Virüs İmleç');
+        triggerFakeCursors(user, avatar, 15000);
+      }
+    }
+
+    // 1. ⚡ TikTok Gift -> System Cleaner Sweep (Closes up to 4 windows)
+    function triggerSystemCleaner(user, avatar) {
+      playSound('clean');
+      const beam = document.getElementById('cleaner-beam');
+      beam.classList.remove('active');
+      void beam.offsetWidth; // trigger reflow
+      beam.classList.add('active');
+
+      const toCloseCount = Math.min(4, state.openWindows.length);
+      const targets = state.openWindows.slice(0, toCloseCount).map(w => w.id);
+
+      targets.forEach((id, idx) => {
+        setTimeout(() => closeWindow(id, true), idx * 110);
+      });
+
+      const msg = toCloseCount > 0
+        ? `TikTok attı! ${toCloseCount} pencere temizlendi!`
+        : `TikTok attı! Sistem zaten tertemiz!`;
+
+      showGiftToast(user, avatar, '⚡', msg, 'bg-emerald-950/85 border-emerald-400/60');
+    }
+
+    // 2. 🍵 Tea Gift -> Sets Sender's Profile Picture as Wallpaper Showcase & Floats Particles
+    function triggerTeaWallpaper(user, avatar) {
+      playSound('tea');
+
+      const avatarImg = document.getElementById('tea-avatar-img');
+      const nameEl = document.getElementById('tea-sponsor-name');
+      const subEl = document.getElementById('tea-sponsor-subtitle');
+      const cardEl = document.getElementById('tea-card');
+
+      avatarImg.src = avatar;
+      nameEl.textContent = `@${user}`;
+      subEl.textContent = `Çay Ismarladı! Arka plan artık onun ☕`;
+
+      cardEl.style.transform = 'scale(1.08)';
+      cardEl.classList.add('ring-4', 'ring-amber-300/60');
+      setTimeout(() => {
+        cardEl.style.transform = 'scale(1)';
+        cardEl.classList.remove('ring-4', 'ring-amber-300/60');
+      }, 650);
+
+      showGiftToast(user, avatar, '🍵', 'Çay ısmarladı! Arka plan güncellendi!', 'bg-amber-950/85 border-amber-400/60');
+      triggerConfetti(50);
+      speakTurkish(`${user} çay ısmarladı! Masaüstü arka planı artık onun!`);
+
+      // Spawn floating tea & avatar particles
+      const emojis = ['🍵', '☕', '✨', '🫖'];
+      for (let i = 0; i < 10; i++) {
+        setTimeout(() => {
+          const p = document.createElement('div');
+          p.className = 'floating-particle text-2xl sm:text-3xl drop-shadow-lg';
+          p.textContent = emojis[i % emojis.length];
+          p.style.left = `${12 + Math.random() * 76}vw`;
+          p.style.bottom = '70px';
+          document.body.appendChild(p);
+          setTimeout(() => p.remove(), 3300);
+        }, i * 140);
+      }
+    }
+
+    // 3. 💀 BSOD Gift -> Realistic Turkish Windows 11 Blue Screen (Click 5 times to recover)
+    function triggerBsodEvent(user, avatar) {
+      playSound('bsod');
+      showGiftToast(user, avatar, '💀', 'Sistemi çökertti! Mavi Ekran!', 'bg-blue-950/90 border-blue-400/60');
+
+      state.bsodActive = true;
+      state.bsodClicks = 0;
+      document.getElementById('bsod-culprit-text').textContent = `Sistemi çökerten izleyici: @${user}`;
+      document.getElementById('bsod-clicks-counter').textContent = `0 / ${state.bsodTargetClicks}`;
+      document.getElementById('bsod-recovery-bar').style.width = '0%';
+      document.getElementById('bsod-percent').textContent = '0';
+
+      const bsodEl = document.getElementById('bsod-overlay');
+      bsodEl.classList.remove('hidden');
+
+      if (state.bsodInterval) clearInterval(state.bsodInterval);
+      let pct = 0;
+      state.bsodInterval = setInterval(() => {
+        if (pct < 99) {
+          pct += Math.floor(Math.random() * 7) + 1;
+          if (pct > 99) pct = 99;
+          document.getElementById('bsod-percent').textContent = pct;
+        }
+      }, 650);
+    }
+
+    function handleBsodClick() {
+      if (!state.bsodActive) return;
+      state.bsodClicks += 1;
+      playSound('click');
+
+      const progress = Math.min(100, (state.bsodClicks / state.bsodTargetClicks) * 100);
+      document.getElementById('bsod-clicks-counter').textContent = `${state.bsodClicks} / ${state.bsodTargetClicks}`;
+      document.getElementById('bsod-recovery-bar').style.width = `${progress}%`;
+
+      if (state.bsodClicks >= state.bsodTargetClicks) {
+        recoverFromBsod();
+      }
+    }
+
+    function recoverFromBsod() {
+      state.bsodActive = false;
+      if (state.bsodInterval) clearInterval(state.bsodInterval);
+      document.getElementById('bsod-overlay').classList.add('hidden');
+      playSound('clean');
+    }
+
+    // 4. 🦁 Lion / Mega Gift -> Cascading Trail of 8 Windows + Screen Shake
+    function triggerLionChaos(user, avatar) {
+      showGiftToast(user, avatar, '🦁', 'KAOS MODU! 8 Zincirleme Hata!', 'bg-purple-950/90 border-purple-400/70');
+      triggerConfetti(60);
+      speakTurkish(`Dikkat! ${user} aslan gönderdi! Kaos modu başladı!`);
+
+      const desktop = document.getElementById('desktop-area');
+      desktop.classList.remove('shake-desktop');
+      void desktop.offsetWidth;
+      desktop.classList.add('shake-desktop');
+
+      const dRect = desktop.getBoundingClientRect();
+      const startX = Math.max(16, dRect.width * 0.08);
+      const startY = 55;
+      const stepX = Math.min(24, (dRect.width * 0.45) / 8);
+      const stepY = Math.min(28, (dRect.height * 0.45) / 8);
+
+      for (let i = 0; i < 8; i++) {
+        setTimeout(() => {
+          spawnPopupWindow(user, null, {
+            x: startX + i * stepX,
+            y: startY + i * stepY
+          });
+        }, i * 110);
+      }
+    }
+
+    // ==================== DESKTOP ICONS & UI TOGGLES ====================
+    function handleDesktopIconClick(iconName) {
+      ensureAudioContext();
+      if (iconName === 'chrome') {
+        spawnPopupWindow('Yayıncı', 'chrome');
+      } else if (iconName === 'obs') {
+        spawnPopupWindow('Yayıncı', 'obs');
+      } else if (iconName === 'cleaner') {
+        triggerSystemCleaner('Yayıncı', getAvatarUrl('Yayıncı'));
+      } else if (iconName === 'trash') {
+        showGiftToast('Sistem', getAvatarUrl('Recycle'), '🗑️', `Geri Dönüşüm: ${state.closedCount} pencere silindi`, 'bg-slate-900/90 border-slate-500/50');
+        playSound('pop');
+      } else if (iconName === 'pc') {
+        showGiftToast('Bilgisayarım', getAvatarUrl('Win11'), '💻', `Windows 11 Pro • Açık Pencere: ${state.openWindows.length}`, 'bg-blue-950/90 border-blue-500/50');
+        playSound('pop');
+      }
+    }
+    // Keyboard shortcuts: 'H' to hide/show Control Panel, '1'-'6' for secret streamer triggers
+    window.addEventListener('keydown', (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+      const key = e.key.toLowerCase();
+      if (key === 'h') {
+        toggleControlPanel();
+      } else if (key === '1') {
+        simulateGift('rose');
+      } else if (key === '2') {
+        simulateGift('tiktok');
+      } else if (key === '3') {
+        simulateGift('tea');
+      } else if (key === '4') {
+        simulateGift('bsod');
+      } else if (key === '5') {
+        simulateGift('flip');
+      } else if (key === '6') {
+        simulateGift('evasive');
+      }
+    });
+
+    // ==================== TEST SIMULATOR & AUTO DEMO BOT ====================
+    function simulateGift(type) {
+      ensureAudioContext();
+      const inputVal = document.getElementById('test-username-input').value.trim();
+      const username = inputVal || sampleTurkishUsers[Math.floor(Math.random() * sampleTurkishUsers.length)];
+      triggerGiftEvent(type, username);
+    }
+
+    function toggleDemoMode() {
+      const btn = document.getElementById('demo-mode-btn');
+      if (state.demoInterval) {
+        clearInterval(state.demoInterval);
+        state.demoInterval = null;
+        btn.textContent = 'Başlat';
+        btn.className = 'px-3.5 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-xs font-bold text-white transition';
+      } else {
+        ensureAudioContext();
+        btn.textContent = 'Durdur';
+        btn.className = 'px-3.5 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-xs font-bold text-white transition animate-pulse';
+
+        // Trigger one immediately
+        const randomUser = sampleTurkishUsers[Math.floor(Math.random() * sampleTurkishUsers.length)];
+        triggerGiftEvent('rose', randomUser);
+
+        state.demoInterval = setInterval(() => {
+          if (state.bsodActive || state.overheatActive) return; // Pause bot during BSOD/Overheat
+          const user = sampleTurkishUsers[Math.floor(Math.random() * sampleTurkishUsers.length)];
+          const roll = Math.random();
+          if (roll < 0.44) {
+            triggerGiftEvent('rose', user);
+          } else if (roll < 0.60) {
+            triggerGiftEvent('tiktok', user);
+          } else if (roll < 0.72) {
+            triggerGiftEvent('tea', user);
+          } else if (roll < 0.80) {
+            triggerGiftEvent('evasive', user);
+          } else if (roll < 0.87) {
+            triggerGiftEvent('flip', user);
+          } else if (roll < 0.93) {
+            triggerGiftEvent('cursors', user);
+          } else if (roll < 0.97) {
+            addLikes(125);
+            simulateChatNotification();
+          } else {
+            triggerGiftEvent('bsod', user);
+          }
+        }, 2300);
+      }
+    }
+
+    // ==================== TIKFINITY WEBSOCKET INTEGRATION ====================
+    function updateWsStatusUI(status, text) {
+      const dot = document.getElementById('ws-status-dot');
+      const badge = document.getElementById('ws-badge-text');
+
+      if (status === 'connected') {
+        dot.className = 'w-2 h-2 rounded-full bg-emerald-400 animate-pulse';
+        badge.textContent = text || 'TikFinity Bağlı';
+        badge.className = 'text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30';
+      } else if (status === 'connecting') {
+        dot.className = 'w-2 h-2 rounded-full bg-amber-400 animate-ping';
+        badge.textContent = text || 'Bağlanıyor...';
+        badge.className = 'text-[11px] font-semibold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30';
+      } else {
+        dot.className = 'w-2 h-2 rounded-full bg-rose-500';
+        badge.textContent = text || 'Bağlı Değil';
+        badge.className = 'text-[11px] font-semibold px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30';
+      }
+    }
+
+    function connectTikFinity(manual = false) {
+      const url = document.getElementById('ws-url-input').value.trim() || 'ws://localhost:21213/';
+      if (state.wsReconnectTimer) {
+        clearTimeout(state.wsReconnectTimer);
+        state.wsReconnectTimer = null;
+      }
+
+      if (state.ws) {
+        try { state.ws.close(); } catch (_) {}
+      }
+
+      updateWsStatusUI('connecting', 'Bağlanıyor...');
+
+      try {
+        const ws = new WebSocket(url);
+        state.ws = ws;
+
+        ws.onopen = () => {
+          state.wsConnected = true;
+          updateWsStatusUI('connected', 'TikFinity Bağlı ✓');
+        };
+
+        ws.onmessage = (event) => {
+          try {
+            const payload = JSON.parse(event.data);
+            handleTikFinityPayload(payload);
+          } catch (err) {
+            // Non-JSON message ignored
+          }
+        };
+
+        ws.onerror = () => {
+          state.wsConnected = false;
+          updateWsStatusUI('disconnected', 'TikFinity Bekleniyor');
+        };
+
+        ws.onclose = () => {
+          state.wsConnected = false;
+          updateWsStatusUI('disconnected', 'Bağlı Değil (Oto-Deneme)');
+          state.wsReconnectTimer = setTimeout(() => connectTikFinity(false), 5000);
+        };
+      } catch (e) {
+        updateWsStatusUI('disconnected', 'Geçersiz Adres');
+      }
+    }
+
+    function handleTikFinityPayload(payload) {
+      if (!payload || !payload.event) return;
+
+      // 1. TikFinity "gift" event
+      if (payload.event === 'gift' && payload.data) {
+        const d = payload.data;
+        const rawGiftName = (d.giftName || d.gift_name || '').toLowerCase();
+        const username = d.uniqueId || d.nickname || 'tiktok_izleyici';
+        const avatar = d.profilePictureUrl || null;
+        const repeatCount = Math.min(10, Math.max(1, parseInt(d.repeatCount || 1, 10)));
+        const diamonds = parseInt(d.diamondCount || 1, 10);
+
+        // Map gift names (Turkish & English) to game actions
+        if (rawGiftName.includes('tea') || rawGiftName.includes('çay') || rawGiftName.includes('cay') || rawGiftName.includes('coffee')) {
+          triggerGiftEvent('tea', username, avatar);
+        }
+        else if (rawGiftName.includes('tiktok')) {
+          triggerGiftEvent('tiktok', username, avatar);
+        }
+        else if (rawGiftName.includes('ice cream') || rawGiftName.includes('dondurma') || rawGiftName.includes('doughnut')) {
+          triggerGiftEvent('evasive', username, avatar);
+        }
+        else if (rawGiftName.includes('sunglasses') || rawGiftName.includes('gözlük') || rawGiftName.includes('cap') || rawGiftName.includes('şapka')) {
+          triggerGiftEvent('flip', username, avatar);
+        }
+        else if (rawGiftName.includes('finger heart') || rawGiftName.includes('parmak kalp') || rawGiftName.includes('perfume')) {
+          triggerGiftEvent('cursors', username, avatar);
+        }
+        else if (rawGiftName.includes('heart me') || rawGiftName.includes('kalp me') || rawGiftName === 'gg' || rawGiftName.includes('mavi')) {
+          triggerGiftEvent('bsod', username, avatar);
+        }
+        else if (rawGiftName.includes('lion') || rawGiftName.includes('aslan') || rawGiftName.includes('universe') || diamonds >= 500) {
+          triggerGiftEvent('lion', username, avatar);
+        }
+        else {
+          // Default (Rose / Gül / 1-coin gifts): spawn windows based on combo count
+          for (let i = 0; i < repeatCount; i++) {
+            setTimeout(() => triggerGiftEvent('rose', username, avatar), i * 140);
+          }
+        }
+      }
+
+      // 2. TikFinity "like" event -> Viewer Like Help Bar
+      else if (payload.event === 'like' && payload.data) {
+        const count = Math.max(1, parseInt(payload.data.likeCount || 1, 10));
+        addLikes(count);
+      }
+
+      // 3. TikFinity "chat" event -> !mesaj live desktop notification
+      else if (payload.event === 'chat' && payload.data) {
+        const comment = (payload.data.comment || '').trim();
+        const username = payload.data.uniqueId || payload.data.nickname || 'izleyici';
+        const avatar = getAvatarUrl(username, payload.data.profilePictureUrl || null);
+
+        if (comment.toLowerCase().startsWith('!mesaj ') || comment.toLowerCase().startsWith('/mesaj ')) {
+          const cleanMsg = comment.slice(7).trim();
+          if (cleanMsg) {
+            showChatMessageNotification(username, avatar, cleanMsg);
+          }
+        }
+      }
+    }
+
+    // ==================== INITIALIZATION ====================
+    window.addEventListener('DOMContentLoaded', () => {
+      // Support ?obs=1 query param to auto-hide control panel for OBS Browser Source
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('obs') === '1' || params.get('hidepanel') === '1') {
+        document.getElementById('control-panel').classList.add('hidden');
+      }
+
+      // Attempt initial TikFinity connection
+      connectTikFinity(false);
+    });
+  </script>
+</body>
+</html>
